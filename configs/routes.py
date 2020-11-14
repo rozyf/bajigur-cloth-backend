@@ -48,7 +48,7 @@ class ItemField(BaseModel):
     discount_price: int
 
 class Item(BaseModel):
-    item: str
+    item: ItemField
 
 class ItemLines(BaseModel):
     sku: str
