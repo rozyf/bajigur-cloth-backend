@@ -6,7 +6,10 @@ Bajigur Cloth Backend API dibuat menggunakan bahasa python, framework fastAPI,
 dan database mongoDB. Fitur utama (Highlight Feature) API ini adalah untuk
 benefit admin, dan users sesuai dengan requirement coding test Tees.co.id.
 
-
+## Live API dan Dokumentasi
+- Live API url: https://bajigur-cloth.herokuapp.com/
+- Dokumentasi: https://bajigur-cloth.herokuapp.com/
+<img src="https://raw.githubusercontent.com/rozy97/pic/master/api-documentation.png">
 
 
 ## Built With
