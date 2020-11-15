@@ -6,13 +6,15 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
+from app.controllers.login import login_controller
+
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60000
 
 fake_users_db = {
-    "admin": {
-        "username": "admin",
+    "johndoe": {
+        "username": "johndoe",
         "full_name": "Admin 1",
         "email": "johndoe@example.com",
         "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
@@ -42,6 +44,13 @@ class User(BaseModel):
     email: Optional[str] = None
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
+
+class RegisterSchema(BaseModel):
+    username: str
+    password: str
+    first_name: str
+    last_name: str
+        
 
 
 class ItemField(BaseModel):
@@ -90,10 +99,11 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+def get_user(username: str):
+    from app.models import user
+    filter = { 'username': username }
+    data = user.find_one(filter)
+    return data
 
 
 def authenticate_user(fake_db, username: str, password: str):
@@ -124,29 +134,34 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
+        username: str = payload.get("username")
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
 
 
+async def get_current_active_admin(current_user: User = Depends(get_current_user)):
+    if not current_user['is_admin']:
+        raise HTTPException(status_code=403, detail="User Bukan Admin")
+    return current_user
+
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
+    if current_user['is_admin']:
+        raise HTTPException(status_code=403, detail="Admin Tidak Bisa Akses")
     return current_user
 
 def routes(app):
     # Login & Register
     @app.post("/api/v1/login", response_model=Token, tags=['LOGIN & REGISTER'], summary='Login for Access Token')
     async def f(form_data: OAuth2PasswordRequestForm = Depends()):
-        user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-        if not user:
+        cred = login_controller(form_data.username, form_data.password)
+        if not cred:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect username or password",
@@ -154,81 +169,81 @@ def routes(app):
             )
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": user.username}, expires_delta=access_token_expires
+            data={"username": cred['username'], "is_admin": cred["is_admin"]}, expires_delta=access_token_expires
         )
         return {"access_token": access_token, "token_type": "bearer"}
 
     @app.post("/api/v1/register", tags=['LOGIN & REGISTER'], summary='Register User')
-    async def f(body: User):
-        return { 'message': 'success' }
+    async def f(body: RegisterSchema):
+        return { 'username': body.username }
 
 
     # Highlight Feature
     @app.post("/api/v1/admin/coupons", tags=['HIGHLIGHT FEATURE'], summary='Create a coupon / voucher')
-    async def f(body: Item, current_user: User = Depends(get_current_active_user)):
+    async def f(body: Item, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.post("/api/v1/admin/coupons/share", tags=['HIGHLIGHT FEATURE'], summary='Give coupon to some / all of the users')
-    async def f(body: Item, current_user: User = Depends(get_current_active_user)):
+    async def f(body: Item, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.post("/api/v1/admin/coupons/share/{user_id}", tags=['HIGHLIGHT FEATURE'], summary='Give coupon to a user')
-    async def f(body: Item, current_user: User = Depends(get_current_active_user)):
+    async def f(body: Item, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
 
 
     # Admin
     @app.get("/api/v1/admin/coupons", tags=['ADMIN'])
-    async def get_a_list_of_coupons(current_user: User = Depends(get_current_active_user)):
+    async def get_a_list_of_coupons(current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.get("/api/v1/admin/coupons/{coupon_id}", tags=['ADMIN'])
-    async def get_a_coupon(coupon_id, current_user: User = Depends(get_current_active_user)):
+    async def get_a_coupon(coupon_id, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.patch("/api/v1/admin/coupons/{coupon_id}", tags=['ADMIN'])
-    async def update_status_order(coupon_id, order_id, current_user: User = Depends(get_current_active_user)):
+    async def update_status_order(coupon_id, order_id, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.delete("/api/v1/admin/coupons/{coupon_id}", tags=['ADMIN'])
-    async def delete_an_order(coupon_id, current_user: User = Depends(get_current_active_user)):
+    async def delete_an_order(coupon_id, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.get("/api/v1/admin/users", tags=['ADMIN'], summary='Get a List of Users')
-    async def f(current_user: User = Depends(get_current_active_user)):
+    async def f(current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.get("/api/v1/admin/items", tags=['ADMIN'])
-    async def get_a_list_of_products(current_user: User = Depends(get_current_active_user)):
+    async def get_a_list_of_products(current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.get("/api/v1/admin/items/{item_id}", tags=['ADMIN'])
-    async def get_single_product(item_id, current_user: User = Depends(get_current_active_user)):
+    async def get_single_product(item_id, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.post("/api/v1/admin/items", tags=['ADMIN'])
-    async def create_single_product(body: Item, current_user: User = Depends(get_current_active_user)):
+    async def create_single_product(body: Item, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.post("/api/v1/admin/items/apply_discount", tags=['HIGHLIGHT FEATURE', 'ADMIN'], summary="Give discount on least sold product or old product to increase product's sales")
-    async def f(body: Item, current_user: User = Depends(get_current_active_user)):
+    async def f(body: Item, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.patch("/api/v1/admin/items/{item_id}", tags=['ADMIN'])
-    async def edit_a_product(item_id, current_user: User = Depends(get_current_active_user)):
+    async def edit_a_product(item_id, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.delete("/api/v1/admin/items/{item_id}", tags=['ADMIN'])
-    async def delete_a_product(item_id, current_user: User = Depends(get_current_active_user)):
+    async def delete_a_product(item_id, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.get("/api/v1/admin/orders", tags=['ADMIN'])
-    async def get_a_list_of_orders(current_user: User = Depends(get_current_active_user)):
+    async def get_a_list_of_orders(current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
     @app.post("/api/v1/admin/orders", tags=['ADMIN'])
-    async def create_single_order(body: Order, current_user: User = Depends(get_current_active_user)):
+    async def create_single_order(body: Order, current_user: User = Depends(get_current_active_admin)):
         return { 'message': 'success' }
 
 
