@@ -7,9 +7,10 @@ dan database mongoDB. Fitur utama (Highlight Feature) API ini adalah untuk
 benefit admin, dan users sesuai dengan requirement coding test Tees.co.id.
 
 ### 
-[![Express.js](https://img.shields.io/badge/python-v3.9.0-blue)](https://www.python.org/downloads/release/python-390/)
-[![Node.js](https://img.shields.io/badge/Node.js-v.10.16-green.svg?style=rounded-square)](https://nodejs.org/)
+[![python](https://img.shields.io/badge/python-v3.9.0-blue)](https://www.python.org/downloads/release/python-390/)
+[![fastapi](https://img.shields.io/badge/FastAPI-v0.61.2-brightgreen)](https://fastapi.tiangolo.com/)
 [![mongoDB](https://img.shields.io/badge/mongoDB-4.2-lightgreen)](https://mongodb.com)
+[![openAPI](https://img.shields.io/badge/openAPI-v3.0.2-yellowgreen)](https://www.openapis.org/)
 
 ## Live API dan Dokumentasi
 - Live API url: https://bajigur-cloth.herokuapp.com/
