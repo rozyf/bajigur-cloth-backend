@@ -37,9 +37,9 @@ benefit admin, dan users sesuai dengan requirement coding test Tees.co.id.
 
 
 **1. Fitur apa yang krusial dibutuhkan oleh tim dan admin Bajigur Cloth untuk dapat memberikan pelayanan dengan baik?**
-*  `POST /api/v1/admin/coupons` admin membuat kupon sesuai kebutuhan (cth. hadiah naik level)
+*  `POST /api/v1/admin/coupons` admin membuat kupon sesuai kebutuhan
 *  `POST /api/v1/admin/coupons/share` pemberian kupon kepada user untuk menambah daya beli
-*  `POST /api/v1/admin/coupons/share/{user_id}` pemberian kupon ke user tertentu sesuai kebutuhan
+*  `POST /api/v1/admin/coupons/share/{user_id}` pemberian kupon ke user tertentu sesuai kebutuhan  (cth. hadiah naik level)
 *  `POST /api/v1/admin/items/apply_discount` memberi diskon ke produk yang kurang laku atau produk lama untuk meningkatkan penjualan
 
 **2. Fitur apa yang krusial dibutuhkan member Bajigur Cloth untuk dapat berbelanja dengan baik?**
