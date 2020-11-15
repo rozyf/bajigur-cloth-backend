@@ -33,7 +33,7 @@ benefit admin, dan users sesuai dengan requirement coding test Tees.co.id.
 3. You can test the API via postman or documentation at http://localhost:8000/docs
 
 ## Penjelasan Fitur berdasarkan soal coding test
-***Bajigur Cloth ingin memanfaatkan data belanja sebelumnya dari para member tersebut untuk memberikan experience berbelanja yang baik dan dapat dipersonalisasi.***
+**Bajigur Cloth ingin memanfaatkan data belanja sebelumnya dari para member tersebut untuk memberikan experience berbelanja yang baik dan dapat dipersonalisasi.**
 
 
 **1. Fitur apa yang krusial dibutuhkan oleh tim dan admin Bajigur Cloth untuk dapat memberikan pelayanan dengan baik?**
@@ -48,3 +48,4 @@ benefit admin, dan users sesuai dengan requirement coding test Tees.co.id.
 *  `/api/v1/users/user_membership_level` menampilkan status level user. semakin tinggi level, maka semakin banyak benefit seperti kupon & diskon. point level akan bertambah setiap user melakukan order
 
 ##
+***firmansyah rozy***
