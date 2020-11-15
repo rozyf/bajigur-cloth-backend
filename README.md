@@ -11,6 +11,10 @@ benefit admin, dan users sesuai dengan requirement coding test Tees.co.id.
 [![fastapi](https://img.shields.io/badge/FastAPI-v0.61.2-brightgreen)](https://fastapi.tiangolo.com/)
 [![mongoDB](https://img.shields.io/badge/mongoDB-4.2-lightgreen)](https://mongodb.com)
 [![openAPI](https://img.shields.io/badge/openAPI-v3.0.2-yellowgreen)](https://www.openapis.org/)
+[![swagger](https://img.shields.io/badge/swagger-valid-brightgreen)](https://swagger.io/)
+[![uvicorn](https://img.shields.io/badge/uvicorn-v0.12.2-red)](https://www.uvicorn.org/)
+[![heroku](https://img.shields.io/badge/heroku-server-9cf)](https://www.heroku.com/)
+
 
 ## Live API dan Dokumentasi
 - Live API url: https://bajigur-cloth.herokuapp.com/
