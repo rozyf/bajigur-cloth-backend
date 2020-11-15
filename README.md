@@ -2,8 +2,9 @@
 
 
 
-MyXL Backend is a rest api application for cloning MyXL application using react-native and admin site using reactJS. Built with NodeJs using the ExpressJs Framework and NoSQL mongo Database.
-Express.js is a web application framework for Node.js. [More about Express](https://en.wikipedia.org/wiki/Express.js)
+Bajigur Cloth Backend API dibuat menggunakan bahasa python, framework fastAPI,
+dan database mongoDB. Fitur utama (Highlight Feature) API ini adalah untuk
+benefit admin, dan users sesuai dengan requirement coding test Tees.co.id.
 
 
 
