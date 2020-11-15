@@ -40,12 +40,12 @@ benefit admin, dan users sesuai dengan requirement coding test Tees.co.id.
 *  `POST /api/v1/admin/coupons` admin membuat kupon sesuai kebutuhan
 *  `POST /api/v1/admin/coupons/share` pemberian kupon kepada user untuk menambah daya beli
 *  `POST /api/v1/admin/coupons/share/{user_id}` pemberian kupon ke user tertentu sesuai kebutuhan
-*  `/api/v1/admin/items/apply_discount` memberi diskon ke produk yang kurang laku atau produk lama untuk meningkatkan penjualan
+*  `POST /api/v1/admin/items/apply_discount` memberi diskon ke produk yang kurang laku atau produk lama untuk meningkatkan penjualan
 
 **2. Fitur apa yang krusial dibutuhkan member Bajigur Cloth untuk dapat berbelanja dengan baik?**
 *  `GET /api/v1/users/product_suggestions` menampilkan list produk berdasarkan riwayat order, riwayat pencarian, wishlist, etc.
 *  `GET /api/v1/users/product_discounts` menampilkan list produk yang sedang diskon agar user tidak ketinggalan promosi
-*  `/api/v1/users/user_membership_level` menampilkan status level user. semakin tinggi level, maka semakin banyak benefit seperti kupon & diskon. point level akan bertambah setiap user melakukan order
+*  `GET /api/v1/users/user_membership_level` menampilkan status level user. semakin tinggi level, maka semakin banyak benefit seperti kupon & diskon. point level akan bertambah setiap user melakukan order
 
 ##
 ***firmansyah rozy***
