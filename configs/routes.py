@@ -7,6 +7,9 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from app.controllers.login import login_controller
+from app.controllers.register import register_controller
+from app.controllers.coupon import create_coupon, share_coupons, share_coupons_to_user
+from app.controllers.users import get_product_suggestions, get_product_discounts, get_user_membership_level
 
 SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
@@ -51,7 +54,22 @@ class RegisterSchema(BaseModel):
     first_name: str
     last_name: str
         
+class CouponSchema(BaseModel):
+    name: str
+    code: str
+    type: str
+    discount_amount: int
+    minimum_amount: int
+    is_active: bool
 
+class CouponShareSchema(BaseModel):
+    coupon_codes: list[str]
+
+class ApplyDiscSchema(BaseModel):
+    discount_value: int
+    discount_type: str = "percent"
+        
+        
 
 class ItemField(BaseModel):
     sku: str
@@ -175,21 +193,29 @@ def routes(app):
 
     @app.post("/api/v1/register", tags=['LOGIN & REGISTER'], summary='Register User')
     async def f(body: RegisterSchema):
-        return { 'username': body.username }
+        response = register_controller(vars(body))
+        if response:
+            return response
+        raise HTTPException(status_code=400, detail="Register failed! username already exist")
 
 
     # Highlight Feature
     @app.post("/api/v1/admin/coupons", tags=['HIGHLIGHT FEATURE'], summary='Create a coupon / voucher')
-    async def f(body: Item, current_user: User = Depends(get_current_active_admin)):
-        return { 'message': 'success' }
+    async def f(body: CouponSchema, current_user: User = Depends(get_current_active_admin)):
+        response = create_coupon(vars(body))
+        if not response:
+            raise HTTPException(status_code=400, detail="Failed create coupon or coupon's code already exist")
+        return response
 
     @app.post("/api/v1/admin/coupons/share", tags=['HIGHLIGHT FEATURE'], summary='Give coupon to some / all of the users')
-    async def f(body: Item, current_user: User = Depends(get_current_active_admin)):
-        return { 'message': 'success' }
+    async def f(body: CouponShareSchema, current_user: User = Depends(get_current_active_admin)):
+        response = share_coupons(vars(body))
+        return response
 
     @app.post("/api/v1/admin/coupons/share/{user_id}", tags=['HIGHLIGHT FEATURE'], summary='Give coupon to a user')
-    async def f(body: Item, current_user: User = Depends(get_current_active_admin)):
-        return { 'message': 'success' }
+    async def f(user_id, body: CouponShareSchema, current_user: User = Depends(get_current_active_admin)):
+        response = share_coupons_to_user(vars(body), user_id)
+        return response
 
 
 
@@ -227,8 +253,8 @@ def routes(app):
         return { 'message': 'success' }
 
     @app.post("/api/v1/admin/items/apply_discount", tags=['HIGHLIGHT FEATURE', 'ADMIN'], summary="Give discount on least sold product or old product to increase product's sales")
-    async def f(body: Item, current_user: User = Depends(get_current_active_admin)):
-        return { 'message': 'success' }
+    async def f(body: ApplyDiscSchema, current_user: User = Depends(get_current_active_admin)):
+        return { 'message': 'success apply discount to all product' }
 
     @app.patch("/api/v1/admin/items/{item_id}", tags=['ADMIN'])
     async def edit_a_product(item_id, current_user: User = Depends(get_current_active_admin)):
@@ -248,8 +274,9 @@ def routes(app):
 
 
     # USERS
-    @app.get("/api/v1/users/profile", response_model=User, tags=['USERS'])
+    @app.get("/api/v1/users/profile", tags=['USERS'])
     async def get_user_profile(current_user: User = Depends(get_current_active_user)):
+        current_user['_id'] = str(current_user['_id'])
         return current_user
 
     @app.get("/api/v1/users/orders", tags=['USERS'], summary="Get All User's Orders")
@@ -262,12 +289,15 @@ def routes(app):
 
     @app.get("/api/v1/users/product_suggestions", tags=['HIGHLIGHT FEATURE', 'USERS'], summary="Show Product Based on User Order's History, Search History, Wishlist, etc.")
     async def f(current_user: User = Depends(get_current_active_user)):
-        return [{"item_id": "Foo", "owner": current_user.username}]
+        response = get_product_suggestions(current_user)
+        return response
 
     @app.get("/api/v1/users/product_discounts", tags=['HIGHLIGHT FEATURE', 'USERS'], summary="Show Product that is on sales discount")
     async def f(current_user: User = Depends(get_current_active_user)):
-        return [{"item_id": "Foo", "owner": current_user.username}]
+        response = get_product_discounts(current_user)
+        return response
 
     @app.get("/api/v1/users/user_membership_level", tags=['HIGHLIGHT FEATURE', 'USERS'], summary="Get membership level. Level increased when user purchase a product. Higher level gets more benefits like coupons & discounts")
     async def f(current_user: User = Depends(get_current_active_user)):
-        return [{"item_id": "Foo", "owner": current_user.username}]
+        response = get_user_membership_level(current_user)
+        return response

@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from configs import api_description, tags_metadata
+from configs import title, api_description, tags_metadata, version
 from configs.routes import routes
 
 app = FastAPI(
-	title = 'Bajigur Cloth Backend API',
+	title = title,
+	version = version,
 	description = api_description,
 	openapi_tags = tags_metadata
 )
